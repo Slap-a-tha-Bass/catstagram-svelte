@@ -1,53 +1,65 @@
 <script lang="ts">
-	import UserButton from 'clerk-sveltekit/client/UserButton.svelte';
-	import SignedIn from 'clerk-sveltekit/client/SignedIn.svelte';
-	import SignedOut from 'clerk-sveltekit/client/SignedOut.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	export let user;
 
-	import { textColors } from '$lib';
+	let showDropdown = false;
+	let dropdownRef: HTMLDivElement | null = null;
 
-	let textColor = 'text-blue-700';
-	let showColorSelector = false;
-
-	// Check if localStorage is available and set textColor from it
-	if (typeof window !== 'undefined' && window.localStorage) {
-		textColor = localStorage.getItem('textColor') || textColor;
+	function toggleDropdown() {
+		showDropdown = !showDropdown;
 	}
 
-	$: {
-		if (typeof window !== 'undefined' && window.localStorage) {
-			document.body.className = textColor;
-			localStorage.setItem('textColor', textColor);
+	function hideDropdown() {
+		showDropdown = false;
+	}
+
+	function handleClickOutside(event: MouseEvent) {
+		if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
+			hideDropdown();
 		}
 	}
 
-	function updateTextColor(event: Event) {
-		const target = event.target as HTMLSelectElement;
-		textColor = target.value;
-	}
+	onMount(() => {
+		if (typeof document !== 'undefined') {
+			document.addEventListener('click', handleClickOutside);
+		}
+	});
 
-	function toggleColorSelector() {
-		showColorSelector = !showColorSelector;
-	}
+	onDestroy(() => {
+		if (typeof document !== 'undefined') {
+			document.removeEventListener('click', handleClickOutside);
+		}
+	});
 </script>
 
-<nav class="flex justify-between items-center">
-	<img src="/catstagram-main.png" alt="Catstagram" class="h-12 w-12" />
-	<h1 class={`text-xl ${textColor}`}>Catstagram</h1>
-	<SignedIn>
-		<UserButton afterSignOutUrl="/" />
-		<button on:click={toggleColorSelector}>
-			{#if showColorSelector}Hide Color Selector{:else}Show Color Selector{/if}
-		</button>
-		{#if showColorSelector}
-			<select bind:value={textColor} on:change={updateTextColor}>
-				{#each Object.entries(textColors) as [color, className]}
-					<option value={className}>{color}</option>
-				{/each}
-			</select>
+<nav class="flex justify-between items-center p-2">
+	<div class="flex items-center gap-x-2">
+		<img src="/catstagram-main.png" alt="Catstagram" class="max-w-8" />
+		<h1 class="text-xl">Catstagram</h1>
+	</div>
+	<div>
+		{#if user}
+			<div class="relative" bind:this={dropdownRef}>
+				<button on:click={toggleDropdown}>
+					<img
+						src={user.payload.picture}
+						alt={user.payload.name}
+						class="max-w-8 rounded-full cursor-pointer"
+					/>
+				</button>
+				{#if showDropdown}
+					<div
+						class="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg z-10"
+					>
+						<p class="p-2 text-xs border-b border-gray-200">{user.payload.name}</p>
+						<form action="/sign-out" method="GET" class="p-2">
+							<button class="w-full text-left text-xs" type="submit">Sign Out</button>
+						</form>
+					</div>
+				{/if}
+			</div>
+		{:else}
+			<a href="/sign-in">Sign In</a>
 		{/if}
-	</SignedIn>
-	<SignedOut>
-		<a href="/sign-in">Sign in</a> <span>|</span> <a href="/sign-up">Sign up</a>
-		<!-- You could also use <SignInButton mode="modal" /> and <SignUpButton mode="modal" /> here -->
-	</SignedOut>
+	</div>
 </nav>

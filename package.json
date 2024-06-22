@@ -35,6 +35,6 @@
 	"type": "module",
 	"dependencies": {
 		"@supabase/supabase-js": "^2.43.5",
-		"clerk-sveltekit": "^0.4.2"
+		"google-auth-library": "^9.11.0"
 	}
 }

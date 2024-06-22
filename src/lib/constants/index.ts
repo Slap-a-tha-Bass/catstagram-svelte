@@ -1,3 +1,5 @@
+export const AUTH_REDIRECT_URL = 'http://localhost:5173/oauth';
+
 export const textColors = {
 	red: 'text-red-700',
 	orange: 'text-orange-700',
