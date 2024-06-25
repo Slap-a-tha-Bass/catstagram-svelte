@@ -33,10 +33,10 @@
 </script>
 
 <nav class="flex justify-between items-center p-2">
-	<div class="flex items-center gap-x-2">
+	<a href="/" class="flex items-center accent-font">
 		<img src="/catstagram-main.png" alt="Catstagram" class="max-w-8" />
-		<h1 class="text-xl">Catstagram</h1>
-	</div>
+		<h1 class="text-2xl">Catstagram</h1>
+	</a>
 	<div>
 		{#if user}
 			<div class="relative" bind:this={dropdownRef}>
